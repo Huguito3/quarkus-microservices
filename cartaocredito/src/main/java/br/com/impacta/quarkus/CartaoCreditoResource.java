@@ -1,0 +1,100 @@
+package br.com.impacta.quarkus;
+
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import br.com.impacta.quarkus.Models.CartaoCredito;
+import br.com.impacta.quarkus.Models.Monto;
+
+@Path("/cartaoCredito")
+public class CartaoCreditoResource {
+    @Inject
+    CartaoCreditoService cartaoCreditoervice;
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Set<CartaoCredito> listCartaoCredito() {
+        return cartaoCreditoervice.listCartaoCredito();
+    }
+
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/id/{idCartaoCredito}")
+    public CartaoCredito getCartaoCredito(@PathParam("idCartaoCredito") Integer idCartaoCredito) {
+        CartaoCredito CartaoCreditoEntity = new CartaoCredito();
+        CartaoCreditoEntity.setIdCartaoCredito(idCartaoCredito);
+        CartaoCreditoEntity = cartaoCreditoervice.getCartaoCredito(CartaoCreditoEntity);
+        return CartaoCreditoEntity;
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public CartaoCredito addCartaoCredito(CartaoCredito conta) {
+        CartaoCredito CartaoCreditoEntity = cartaoCreditoervice.addCartaoCredito(conta);
+        return CartaoCreditoEntity;
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/id/{idCartaoCredito}/credito")
+    public CartaoCredito Credito(@PathParam("idCartaoCredito") Integer idCartaoCredito, Monto valor) {
+        try {
+            CartaoCredito CartaoCreditoEntity = new CartaoCredito();
+            CartaoCreditoEntity.setIdCartaoCredito(idCartaoCredito);
+            CartaoCreditoEntity = cartaoCreditoervice.getCartaoCredito(CartaoCreditoEntity);
+            CartaoCredito upCartaoCreditoEntity = cartaoCreditoervice.Credito(CartaoCreditoEntity, valor.valor);
+            return upCartaoCreditoEntity;
+        } catch (Exception e) {
+            throw new BadRequestException();
+
+        }
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/id/{idCartaoCredito}/debito")
+    public CartaoCredito Debito(@PathParam("idCartaoCredito") Integer idCartaoCredito, Monto valor) {
+        try {
+            CartaoCredito CartaoCreditoEntity = new CartaoCredito();
+            CartaoCreditoEntity.setIdCartaoCredito(idCartaoCredito);
+            CartaoCreditoEntity = cartaoCreditoervice.getCartaoCredito(CartaoCreditoEntity);
+
+            if (!(CartaoCreditoEntity.getSaldo().compareTo(valor.valor) >= 0)) {
+                throw new BadRequestException();
+            }
+            CartaoCredito upCartaoCreditoEntity = cartaoCreditoervice.Debito(CartaoCreditoEntity, valor.valor);
+
+            return upCartaoCreditoEntity;
+        } catch (Exception e) {
+            throw new BadRequestException();
+
+        }
+    }
+
+    @DELETE
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/id/{idCartaoCredito}")
+    public CartaoCredito deleteCartaoCredito(@PathParam("idCartaoCredito") Integer idCartaoCredito) {
+        CartaoCredito CartaoCreditoEntity = new CartaoCredito();
+        CartaoCreditoEntity.setIdCartaoCredito(idCartaoCredito);
+        CartaoCreditoEntity = cartaoCreditoervice.deleteCartaoCredito(CartaoCreditoEntity);
+        return CartaoCreditoEntity;
+    }
+
+}
