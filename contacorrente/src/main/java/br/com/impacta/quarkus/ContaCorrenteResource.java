@@ -2,6 +2,7 @@ package br.com.impacta.quarkus;
 
 import java.util.Set;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
@@ -52,6 +53,7 @@ public class ContaCorrenteResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("admin")
     public ContaCorrente addContaCorrente(ContaCorrente conta) {
         ContaCorrente contaCorrenteEntity = contaCorrenteService.addContaCorrente(conta);
         return contaCorrenteEntity;
@@ -100,6 +102,7 @@ public class ContaCorrenteResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/id/{idConta}")
+    @RolesAllowed("admin")
     public ContaCorrente deleteContaCorrente(@PathParam("idConta") Integer idConta) {
         ContaCorrente contaCorrenteEntity = new ContaCorrente();
         contaCorrenteEntity.setIdConta(idConta);
