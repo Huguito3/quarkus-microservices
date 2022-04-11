@@ -1,5 +1,6 @@
 package br.com.impacta.quarkus;
 
+import java.math.BigDecimal;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -37,6 +38,23 @@ public class InvestimentoResource {
         InvestimentoEntity.setIdInvestimento(idInvestimento);
         InvestimentoEntity = InvestimentoService.getInvestimento(InvestimentoEntity);
         return InvestimentoEntity;
+    }
+
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("saldo/conta/id/{idConta}")
+    public Monto getSaldoInvestimentos(@PathParam("idConta") Integer idConta) {
+
+        Set<Investimento> listaInvestimentos = InvestimentoService.listInvestimento();
+
+        Monto montoTotal = new Monto();
+        montoTotal.valor = BigDecimal.ZERO;
+        for (Investimento investimento : listaInvestimentos) {
+            System.out.println(investimento.getSaldo());
+            montoTotal.valor = montoTotal.valor.add(investimento.getSaldo());
+        }
+        return montoTotal;
     }
 
     @POST

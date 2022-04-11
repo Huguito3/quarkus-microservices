@@ -1,5 +1,7 @@
 package br.com.impacta.quarkus;
 
+import java.math.BigDecimal;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -37,6 +39,22 @@ public class CartaoCreditoResource {
         CartaoCreditoEntity.setIdCartaoCredito(idCartaoCredito);
         CartaoCreditoEntity = cartaoCreditoervice.getCartaoCredito(CartaoCreditoEntity);
         return CartaoCreditoEntity;
+    }
+
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("conta/id/{idConta}")
+    public Monto getSaldoCartao(@PathParam("idConta") Integer idConta) {
+
+        Set<CartaoCredito> listaTarjetas = cartaoCreditoervice.listCartaoCredito();
+
+        Monto montoTotal = new Monto();
+        montoTotal.valor = BigDecimal.ZERO;
+        for (CartaoCredito tarjeta : listaTarjetas) {
+            montoTotal.valor = montoTotal.valor.add(tarjeta.getSaldo());
+        }
+        return montoTotal;
     }
 
     @POST

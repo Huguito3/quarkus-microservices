@@ -14,10 +14,23 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
+import br.com.impacta.quarkus.Models.Saldos;
+import br.com.impacta.quarkus.Services.BuscaSaldoCartaoRestClient;
+import br.com.impacta.quarkus.Services.BuscaSaldoInvestimentosRestClient;
+
 @Path("/contas")
 public class ContaCorrenteResource {
     @Inject
     ContaCorrenteService contaCorrenteService;
+
+    @Inject
+    @RestClient
+    BuscaSaldoCartaoRestClient buscaSaldoCartaoRestClient;
+    @Inject
+    @RestClient
+    BuscaSaldoInvestimentosRestClient buscaSaldoInvestimentosRestClient;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -92,6 +105,28 @@ public class ContaCorrenteResource {
         contaCorrenteEntity.setIdConta(idConta);
         contaCorrenteEntity = contaCorrenteService.deleteContaCorrente(contaCorrenteEntity);
         return contaCorrenteEntity;
+    }
+
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("saldo/id/{idConta}")
+    public Saldos getSaldosContas(@PathParam("idConta") Integer idConta) {
+        try {
+
+            Monto fatura = buscaSaldoCartaoRestClient.getSaldoCartao(idConta);
+            Monto investimentos = buscaSaldoInvestimentosRestClient.getSaldoInvestimentos(idConta);
+            ContaCorrente contaCorrenteEntity = new ContaCorrente();
+            contaCorrenteEntity.setIdConta(idConta);
+            contaCorrenteEntity = contaCorrenteService.getContaCorrente(contaCorrenteEntity);
+            Saldos saldosFinal = new Saldos();
+            saldosFinal.FaturaCartao = fatura.getValor();
+            saldosFinal.ContaCorrente = contaCorrenteEntity.getSaldo();
+            saldosFinal.Investimentos = investimentos.getValor();
+            return saldosFinal;
+        } catch (Exception e) {
+            throw new BadRequestException();
+        }
     }
 
 }
