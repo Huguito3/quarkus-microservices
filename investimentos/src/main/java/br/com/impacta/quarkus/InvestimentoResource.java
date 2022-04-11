@@ -15,11 +15,18 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
 import br.com.impacta.quarkus.Models.Investimento;
 import br.com.impacta.quarkus.Models.Monto;
+import br.com.impacta.quarkus.Services.ContaCorrenteRestClient;
 
 @Path("/investimentos")
 public class InvestimentoResource {
+    @Inject
+    @RestClient
+    ContaCorrenteRestClient contaCorrenteRestClient;
+
     @Inject
     InvestimentoService InvestimentoService;
 
@@ -71,6 +78,7 @@ public class InvestimentoResource {
     @Path("/id/{idInvestimento}/credito")
     public Investimento Credito(@PathParam("idInvestimento") Integer idInvestimento, Monto valor) {
         try {
+            contaCorrenteRestClient.Debito(1, valor);
             Investimento InvestimentoEntity = new Investimento();
             InvestimentoEntity.setIdInvestimento(idInvestimento);
             InvestimentoEntity = InvestimentoService.getInvestimento(InvestimentoEntity);
@@ -95,6 +103,7 @@ public class InvestimentoResource {
             if (!(InvestimentoEntity.getSaldo().compareTo(valor.valor) >= 0)) {
                 throw new BadRequestException();
             }
+            contaCorrenteRestClient.Credito(1, valor);
             Investimento upInvestimentoEntity = InvestimentoService.Debito(InvestimentoEntity, valor.valor);
 
             return upInvestimentoEntity;

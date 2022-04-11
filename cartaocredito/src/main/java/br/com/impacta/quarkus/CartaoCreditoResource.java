@@ -16,11 +16,20 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
 import br.com.impacta.quarkus.Models.CartaoCredito;
 import br.com.impacta.quarkus.Models.Monto;
+import br.com.impacta.quarkus.Services.ContaCorrenteRestClient;
 
 @Path("/cartaoCredito")
 public class CartaoCreditoResource {
+
+
+    @Inject
+    @RestClient
+    ContaCorrenteRestClient contaCorrenteRestClient;
+
     @Inject
     CartaoCreditoService cartaoCreditoervice;
 
@@ -71,6 +80,7 @@ public class CartaoCreditoResource {
     @Path("/id/{idCartaoCredito}/credito")
     public CartaoCredito Credito(@PathParam("idCartaoCredito") Integer idCartaoCredito, Monto valor) {
         try {
+            contaCorrenteRestClient.Debito(1, valor);
             CartaoCredito CartaoCreditoEntity = new CartaoCredito();
             CartaoCreditoEntity.setIdCartaoCredito(idCartaoCredito);
             CartaoCreditoEntity = cartaoCreditoervice.getCartaoCredito(CartaoCreditoEntity);
@@ -95,6 +105,7 @@ public class CartaoCreditoResource {
             if (!(CartaoCreditoEntity.getSaldo().compareTo(valor.valor) >= 0)) {
                 throw new BadRequestException();
             }
+            contaCorrenteRestClient.Credito(1, valor);
             CartaoCredito upCartaoCreditoEntity = cartaoCreditoervice.Debito(CartaoCreditoEntity, valor.valor);
 
             return upCartaoCreditoEntity;
