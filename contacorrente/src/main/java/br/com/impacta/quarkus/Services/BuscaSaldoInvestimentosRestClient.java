@@ -1,5 +1,6 @@
 package br.com.impacta.quarkus.Services;
 
+import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import br.com.impacta.quarkus.Monto;
@@ -14,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 
 @ApplicationScoped
 @RegisterRestClient
+@RegisterClientHeaders
 public interface BuscaSaldoInvestimentosRestClient {
 
     @GET

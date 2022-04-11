@@ -4,11 +4,13 @@ import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -19,12 +21,12 @@ import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import br.com.impacta.quarkus.Models.CartaoCredito;
+import br.com.impacta.quarkus.Models.ContaCorrente;
 import br.com.impacta.quarkus.Models.Monto;
 import br.com.impacta.quarkus.Services.ContaCorrenteRestClient;
 
 @Path("/cartaoCredito")
 public class CartaoCreditoResource {
-
 
     @Inject
     @RestClient
@@ -69,9 +71,20 @@ public class CartaoCreditoResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("admin")
     public CartaoCredito addCartaoCredito(CartaoCredito conta) {
-        CartaoCredito CartaoCreditoEntity = cartaoCreditoervice.addCartaoCredito(conta);
-        return CartaoCreditoEntity;
+        try {
+            ContaCorrente contaSelecionada = contaCorrenteRestClient.getContaCorrente(conta.getIdConta());
+            if (contaSelecionada == null) {
+                throw new NotFoundException("Conta não Localizada");
+            }
+            CartaoCredito CartaoCreditoEntity = cartaoCreditoervice.addCartaoCredito(conta);
+            return CartaoCreditoEntity;
+        } catch (Exception e) {
+            // TODO: handle exception
+            System.out.println("Mensaje Erro: " + e);
+            throw new BadRequestException();
+        }
     }
 
     @PUT
@@ -80,10 +93,14 @@ public class CartaoCreditoResource {
     @Path("/id/{idCartaoCredito}/credito")
     public CartaoCredito Credito(@PathParam("idCartaoCredito") Integer idCartaoCredito, Monto valor) {
         try {
-            contaCorrenteRestClient.Debito(1, valor);
             CartaoCredito CartaoCreditoEntity = new CartaoCredito();
             CartaoCreditoEntity.setIdCartaoCredito(idCartaoCredito);
             CartaoCreditoEntity = cartaoCreditoervice.getCartaoCredito(CartaoCreditoEntity);
+            ContaCorrente contaSelecionada = contaCorrenteRestClient.getContaCorrente(CartaoCreditoEntity.getIdConta());
+            if (contaSelecionada == null) {
+                throw new NotFoundException("Conta não Localizada");
+            }
+            contaCorrenteRestClient.Debito(CartaoCreditoEntity.getIdConta(), valor);
             CartaoCredito upCartaoCreditoEntity = cartaoCreditoervice.Credito(CartaoCreditoEntity, valor.valor);
             return upCartaoCreditoEntity;
         } catch (Exception e) {
@@ -105,7 +122,11 @@ public class CartaoCreditoResource {
             if (!(CartaoCreditoEntity.getSaldo().compareTo(valor.valor) >= 0)) {
                 throw new BadRequestException();
             }
-            contaCorrenteRestClient.Credito(1, valor);
+            ContaCorrente contaSelecionada = contaCorrenteRestClient.getContaCorrente(CartaoCreditoEntity.getIdConta());
+            if (contaSelecionada == null) {
+                throw new NotFoundException("Conta não Localizada");
+            }
+            contaCorrenteRestClient.Credito(CartaoCreditoEntity.getIdConta(), valor);
             CartaoCredito upCartaoCreditoEntity = cartaoCreditoervice.Debito(CartaoCreditoEntity, valor.valor);
 
             return upCartaoCreditoEntity;
@@ -119,6 +140,7 @@ public class CartaoCreditoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/id/{idCartaoCredito}")
+    @RolesAllowed("admin")
     public CartaoCredito deleteCartaoCredito(@PathParam("idCartaoCredito") Integer idCartaoCredito) {
         CartaoCredito CartaoCreditoEntity = new CartaoCredito();
         CartaoCreditoEntity.setIdCartaoCredito(idCartaoCredito);

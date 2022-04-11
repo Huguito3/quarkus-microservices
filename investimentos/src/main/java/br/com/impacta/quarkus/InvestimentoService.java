@@ -49,7 +49,7 @@ public class InvestimentoService {
 
     
 
-    public Investimento Credito(Investimento Investimento, BigDecimal valor){
+    public Investimento Aplicacao(Investimento Investimento, BigDecimal valor){
         if (InvestimentoSet.contains(Investimento)){
             for (Investimento InvestimentoEntity : InvestimentoSet) {
                 if (InvestimentoEntity.equals(Investimento)){
@@ -61,7 +61,7 @@ public class InvestimentoService {
         return null;
     }
 
-    public Investimento Debito(Investimento Investimento, BigDecimal valor){
+    public Investimento Resgate(Investimento Investimento, BigDecimal valor){
         if (InvestimentoSet.contains(Investimento)){
             for (Investimento InvestimentoEntity : InvestimentoSet) {
                 if (InvestimentoEntity.equals(Investimento)){
