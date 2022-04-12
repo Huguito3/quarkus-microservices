@@ -17,6 +17,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.eclipse.microprofile.faulttolerance.Retry;
+import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import br.com.impacta.quarkus.Models.ContaCorrente;
@@ -35,6 +37,8 @@ public class InvestimentoResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Retry(maxRetries = 4)
+    @Timeout(150)
     public Set<Investimento> listInvestimento() {
         return InvestimentoService.listInvestimento();
     }
@@ -43,6 +47,8 @@ public class InvestimentoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/id/{idInvestimento}")
+    @Retry(maxRetries = 4)
+    @Timeout(150)
     public Investimento getInvestimento(@PathParam("idInvestimento") Integer idInvestimento) {
         Investimento InvestimentoEntity = new Investimento();
         InvestimentoEntity.setIdInvestimento(idInvestimento);
@@ -54,6 +60,8 @@ public class InvestimentoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("saldo/conta/id/{idConta}")
+    @Retry(maxRetries = 4)
+    @Timeout(150)
     public Monto getSaldoInvestimentos(@PathParam("idConta") Integer idConta) {
 
         Set<Investimento> listaInvestimentos = InvestimentoService.listInvestimento();
@@ -71,6 +79,8 @@ public class InvestimentoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("admin")
+    @Retry(maxRetries = 4)
+    @Timeout(150)
     public Investimento addInvestimento(Investimento conta) {
 
         try {
@@ -92,6 +102,8 @@ public class InvestimentoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/id/{idInvestimento}/aplicacao")
+    @Retry(maxRetries = 4)
+    @Timeout(150)
     public Investimento Aplicacao(@PathParam("idInvestimento") Integer idInvestimento, Monto valor) {
         try {
             Investimento InvestimentoEntity = new Investimento();
@@ -115,6 +127,8 @@ public class InvestimentoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/id/{idInvestimento}/resgate")
+    @Retry(maxRetries = 4)
+    @Timeout(150)
     public Investimento Resgate(@PathParam("idInvestimento") Integer idInvestimento, Monto valor) {
         try {
             Investimento InvestimentoEntity = new Investimento();
@@ -143,6 +157,8 @@ public class InvestimentoResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/id/{idInvestimento}")
     @RolesAllowed("admin")
+    @Retry(maxRetries = 4)
+    @Timeout(150)
     public Investimento deleteInvestimento(@PathParam("idInvestimento") Integer idInvestimento) {
         Investimento InvestimentoEntity = new Investimento();
         InvestimentoEntity.setIdInvestimento(idInvestimento);

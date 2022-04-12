@@ -18,6 +18,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.eclipse.microprofile.faulttolerance.Retry;
+import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import br.com.impacta.quarkus.Models.CartaoCredito;
@@ -37,6 +39,8 @@ public class CartaoCreditoResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Retry(maxRetries = 4)
+    @Timeout(150)
     public Set<CartaoCredito> listCartaoCredito() {
         return cartaoCreditoervice.listCartaoCredito();
     }
@@ -45,6 +49,8 @@ public class CartaoCreditoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/id/{idCartaoCredito}")
+    @Retry(maxRetries = 4)
+    @Timeout(150)
     public CartaoCredito getCartaoCredito(@PathParam("idCartaoCredito") Integer idCartaoCredito) {
         CartaoCredito CartaoCreditoEntity = new CartaoCredito();
         CartaoCreditoEntity.setIdCartaoCredito(idCartaoCredito);
@@ -56,6 +62,8 @@ public class CartaoCreditoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("conta/id/{idConta}")
+    @Retry(maxRetries = 4)
+    @Timeout(150)
     public Monto getSaldoCartao(@PathParam("idConta") Integer idConta) {
 
         Set<CartaoCredito> listaTarjetas = cartaoCreditoervice.listCartaoCredito();
@@ -72,6 +80,8 @@ public class CartaoCreditoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("admin")
+    @Retry(maxRetries = 4)
+    @Timeout(150)
     public CartaoCredito addCartaoCredito(CartaoCredito conta) {
         try {
             ContaCorrente contaSelecionada = contaCorrenteRestClient.getContaCorrente(conta.getIdConta());
@@ -91,6 +101,8 @@ public class CartaoCreditoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/id/{idCartaoCredito}/credito")
+    @Retry(maxRetries = 4)
+    @Timeout(150)
     public CartaoCredito Credito(@PathParam("idCartaoCredito") Integer idCartaoCredito, Monto valor) {
         try {
             CartaoCredito CartaoCreditoEntity = new CartaoCredito();
@@ -113,6 +125,8 @@ public class CartaoCreditoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/id/{idCartaoCredito}/debito")
+    @Retry(maxRetries = 4)
+    @Timeout(150)
     public CartaoCredito Debito(@PathParam("idCartaoCredito") Integer idCartaoCredito, Monto valor) {
         try {
             CartaoCredito CartaoCreditoEntity = new CartaoCredito();
@@ -141,6 +155,8 @@ public class CartaoCreditoResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/id/{idCartaoCredito}")
     @RolesAllowed("admin")
+    @Retry(maxRetries = 4)
+    @Timeout(150)
     public CartaoCredito deleteCartaoCredito(@PathParam("idCartaoCredito") Integer idCartaoCredito) {
         CartaoCredito CartaoCreditoEntity = new CartaoCredito();
         CartaoCreditoEntity.setIdCartaoCredito(idCartaoCredito);
