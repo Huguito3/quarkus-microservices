@@ -1,7 +1,9 @@
 package br.com.impacta.quarkus;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -20,20 +22,33 @@ import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jose4j.json.internal.json_simple.JSONObject;
 
 import br.com.impacta.quarkus.Models.ContaCorrente;
 import br.com.impacta.quarkus.Models.Investimento;
 import br.com.impacta.quarkus.Models.Monto;
+import br.com.impacta.quarkus.Models.Solicitacao;
 import br.com.impacta.quarkus.Services.ContaCorrenteRestClient;
+import io.smallrye.mutiny.Multi;
+
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
 
 @Path("/investimentos")
 public class InvestimentoResource {
+    @Channel("retorno") Multi<Solicitacao> retornoSolicitacoes; 
+
+    @Channel("solicitacao-requests")
+    Emitter<String> debitoRequestEmitter;
+
     @Inject
     @RestClient
     ContaCorrenteRestClient contaCorrenteRestClient;
 
     @Inject
     InvestimentoService InvestimentoService;
+
+   
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -102,8 +117,8 @@ public class InvestimentoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/id/{idInvestimento}/aplicacao")
-    @Retry(maxRetries = 4)
-    @Timeout(150)
+    // @Retry(maxRetries = 4)
+    @Timeout(500)
     public Investimento Aplicacao(@PathParam("idInvestimento") Integer idInvestimento, Monto valor) {
         try {
             Investimento InvestimentoEntity = new Investimento();
@@ -114,7 +129,19 @@ public class InvestimentoResource {
             if (contaSelecionada == null) {
                 throw new NotFoundException("Conta não Localizada");
             }
-            contaCorrenteRestClient.Debito(InvestimentoEntity.getIdConta(), valor);
+            Thread.sleep(200);
+            // contaCorrenteRestClient.Debito(InvestimentoEntity.getIdConta(), valor);
+            // Investimento upInvestimentoEntity = InvestimentoService.Aplicacao(InvestimentoEntity, valor.valor);
+            UUID uuid = UUID.randomUUID();
+            HashMap<String,String> novo = new HashMap<String,String>();
+            novo.put("Uid", uuid.toString());
+            novo.put("idConta", idInvestimento.toString());
+            novo.put("valor",valor.valor.toString());
+            novo.put("Tipo", "D");
+            System.out.println("Chamando");
+            JSONObject json = new JSONObject(novo);
+            debitoRequestEmitter.send(json.toString());
+            // contaCorrenteRestClient.Debito(InvestimentoEntity.getIdConta(), valor);
             Investimento upInvestimentoEntity = InvestimentoService.Aplicacao(InvestimentoEntity, valor.valor);
             return upInvestimentoEntity;
         } catch (Exception e) {
@@ -142,9 +169,17 @@ public class InvestimentoResource {
             if (contaSelecionada == null) {
                 throw new NotFoundException("Conta não Localizada");
             }
-            contaCorrenteRestClient.Credito(InvestimentoEntity.getIdConta(), valor);
+            // contaCorrenteRestClient.Credito(InvestimentoEntity.getIdConta(), valor);
+            UUID uuid = UUID.randomUUID();
+            HashMap<String,String> novo = new HashMap<String,String>();
+            novo.put("Uid", uuid.toString());
+            novo.put("idConta", idInvestimento.toString());
+            novo.put("valor",valor.valor.toString());
+            novo.put("Tipo", "C");
+            System.out.println("Chamando");
+            JSONObject json = new JSONObject(novo);
+            debitoRequestEmitter.send(json.toString());
             Investimento upInvestimentoEntity = InvestimentoService.Resgate(InvestimentoEntity, valor.valor);
-
             return upInvestimentoEntity;
         } catch (Exception e) {
             throw new BadRequestException();
@@ -166,4 +201,20 @@ public class InvestimentoResource {
         return InvestimentoEntity;
     }
 
+    @GET
+    @Retry(maxRetries = 4)
+    @Path("/listaSolicitacoes")
+    @Produces(MediaType.APPLICATION_JSON) 
+    public Multi<Solicitacao> stream() {
+        System.out.println("RETORNO SOLICITACOES");
+        return retornoSolicitacoes; 
+    }
+
+//     @GET
+//     @Produces(MediaType.APPLICATION_JSON)
+//     @Retry(maxRetries = 4)
+//     @Timeout(150)
+//     public Set<Investimento> listInvestimento() {
+//         return InvestimentoService.listInvestimento();
+//     }
 }

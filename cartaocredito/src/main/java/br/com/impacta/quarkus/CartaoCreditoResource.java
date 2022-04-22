@@ -1,8 +1,10 @@
 package br.com.impacta.quarkus;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -21,15 +23,20 @@ import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jose4j.json.internal.json_simple.JSONObject;
 
 import br.com.impacta.quarkus.Models.CartaoCredito;
 import br.com.impacta.quarkus.Models.ContaCorrente;
 import br.com.impacta.quarkus.Models.Monto;
 import br.com.impacta.quarkus.Services.ContaCorrenteRestClient;
 
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
 @Path("/cartaoCredito")
 public class CartaoCreditoResource {
-
+    @Channel("solicitacao-requests")
+    Emitter<String> debitoRequestEmitter;
+    
     @Inject
     @RestClient
     ContaCorrenteRestClient contaCorrenteRestClient;
@@ -112,7 +119,16 @@ public class CartaoCreditoResource {
             if (contaSelecionada == null) {
                 throw new NotFoundException("Conta não Localizada");
             }
-            contaCorrenteRestClient.Debito(CartaoCreditoEntity.getIdConta(), valor);
+            // contaCorrenteRestClient.Debito(CartaoCreditoEntity.getIdConta(), valor);
+            UUID uuid = UUID.randomUUID();
+            HashMap<String,String> novo = new HashMap<String,String>();
+            novo.put("Uid", uuid.toString());
+            novo.put("idConta", idCartaoCredito.toString());
+            novo.put("valor",valor.valor.toString());
+            novo.put("Tipo", "D");
+           
+            JSONObject json = new JSONObject(novo);
+            debitoRequestEmitter.send(json.toString());
             CartaoCredito upCartaoCreditoEntity = cartaoCreditoervice.Credito(CartaoCreditoEntity, valor.valor);
             return upCartaoCreditoEntity;
         } catch (Exception e) {
@@ -140,7 +156,16 @@ public class CartaoCreditoResource {
             if (contaSelecionada == null) {
                 throw new NotFoundException("Conta não Localizada");
             }
-            contaCorrenteRestClient.Credito(CartaoCreditoEntity.getIdConta(), valor);
+            // contaCorrenteRestClient.Credito(CartaoCreditoEntity.getIdConta(), valor);
+            UUID uuid = UUID.randomUUID();
+            HashMap<String,String> novo = new HashMap<String,String>();
+            novo.put("Uid", uuid.toString());
+            novo.put("idConta", idCartaoCredito.toString());
+            novo.put("valor",valor.valor.toString());
+            novo.put("Tipo", "C");
+           
+            JSONObject json = new JSONObject(novo);
+            debitoRequestEmitter.send(json.toString());
             CartaoCredito upCartaoCreditoEntity = cartaoCreditoervice.Debito(CartaoCreditoEntity, valor.valor);
 
             return upCartaoCreditoEntity;

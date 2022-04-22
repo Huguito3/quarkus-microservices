@@ -18,13 +18,20 @@ services:
   conta:
     image: quarkus
     restart: always
-    volumes: 
-      - $HOME/.m2:/root/.m2
+    # volumes: 
+    #   - $HOME/.m2:/root/.m2
+    volumes:
+      - ./contacorrente:/work/
     build: 
-      context: ./contacorrente
-      dockerfile: ./src/main/docker/Dockerfile.native-micro
+      context: contacorrente
+      dockerfile: ./src/main/docker/Dockerfile.jvm
     container_name: conta_container
     # volumes:
     #   - ./contacorrente/src/main/docker:/work/
     ports:
       - "8080:8080"
+#  producer:
+#     image: quarkus-quickstarts/rabbitmq-quickstart-producer:1.0-${QUARKUS_MODE:-jvm}
+#     build:
+#       context: rabbitmq-quickstart-producer
+#       dockerfile: src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm}
