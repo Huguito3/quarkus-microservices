@@ -1,8 +1,9 @@
 <!-- ![Badge em Desenvolvimento](http://img.shields.io/static/v1?label=STATUS&message=EM%20DESENVOLVIMENTO&color=GREEN&style=for-the-badge) -->
 
-Washington Machado do Nascimento
-Kevin Fernando de Souza Bispo
-Patrick Rodrigues Costa
+# Alunos
+Washington Machado do Nascimento,
+Kevin Fernando de Souza Bispo,
+Patrick Rodrigues Costa,
 Hugo duran Iroz
 
 # Instruções
