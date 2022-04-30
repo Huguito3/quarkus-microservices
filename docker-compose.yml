@@ -4,8 +4,8 @@ services:
     image: rabbitmq:3.9-management
     ports:
       - "5672:5672"
-    networks:
-      - rabbitmq-quickstart-network
+    # networks:
+    #   - rabbitmq-quickstart-network
   rhsso:
     image: viniciusmartinez/quarkus-rhsso:1.0
     ports:
@@ -21,36 +21,36 @@ services:
       - "16686:16686"
       - "14268:14268"
     restart: always
-  conta:
-    image: micro-quarkus/contacorrente:1.0
-    build:
-      context: contacorrente
-      dockerfile: src/main/docker/Dockerfile.jvm
-    environment:
-      RABBITMQ_HOST: rabbit
-      RABBITMQ_PORT: 5672
-      QUARKUS_OIDC_AUTH_SERVER_URL: http://localhost:8080/auth/realms/Quarkus
-    ports:
-      - "8080:8080"
-    depends_on:
-      - "rabbit"
-    networks:
-      - rabbitmq-quickstart-network
-  investimento:
-    image: micro-quarkus/investimentos:1.0
-    build:
-      context: investimentos
-      dockerfile: src/main/docker/Dockerfile.jvm
-    environment:
-      RABBITMQ_HOST: rabbit
-      RABBITMQ_PORT: 5672
-      QUARKUS_OIDC_AUTH_SERVER_URL: http://localhost:8080/auth/realms/Quarkus
-    ports:
-      - "8181:8181"
-    depends_on:
-      - "rhsso"
-    networks:
-      - rabbitmq-quickstart-network
+  # conta:
+  #   image: micro-quarkus/contacorrente:1.0
+  #   build:
+  #     context: contacorrente
+  #     dockerfile: src/main/docker/Dockerfile.jvm
+  #   environment:
+  #     RABBITMQ_HOST: rabbit
+  #     RABBITMQ_PORT: 5672
+  #     QUARKUS_OIDC_AUTH_SERVER_URL: http://localhost:8080/auth/realms/Quarkus
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - "rabbit"
+  #   networks:
+  #     - rabbitmq-quickstart-network
+  # investimento:
+  #   image: micro-quarkus/investimentos:1.0
+  #   build:
+  #     context: investimentos
+  #     dockerfile: src/main/docker/Dockerfile.jvm
+  #   environment:
+  #     RABBITMQ_HOST: rabbit
+  #     RABBITMQ_PORT: 5672
+  #     QUARKUS_OIDC_AUTH_SERVER_URL: http://localhost:8080/auth/realms/Quarkus
+  #   ports:
+  #     - "8181:8181"
+  #   depends_on:
+  #     - "rhsso"
+  #   networks:
+  #     - rabbitmq-quickstart-network
   # cartaocredito:
   #   image: micro-quarkus/cartaocredito:1.0
   #   build:
@@ -66,9 +66,9 @@ services:
   #     - "rhsso"
   #   networks:
   #     - rabbitmq-quickstart-network
-networks:
-  rabbitmq-quickstart-network:
-    name: rabbitmq-quickstart
+  # networks:
+  #   rabbitmq-quickstart-network:
+  #     name: rabbitmq-quickstart
 
   # conta:
   #   build: 
