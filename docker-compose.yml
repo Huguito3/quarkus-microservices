@@ -4,13 +4,16 @@ services:
     image: rabbitmq:3.9-management
     ports:
       - "5672:5672"
+    restart: always
     # networks:
-    #   - rabbitmq-quickstart-network
+    #   - micro-network
   rhsso:
     image: viniciusmartinez/quarkus-rhsso:1.0
     ports:
       - "10080:8080"
     restart: always
+    # networks:
+    #   - micro-network
   jaegger:
     image: jaegertracing/all-in-one:latest
     ports:
@@ -21,65 +24,80 @@ services:
       - "16686:16686"
       - "14268:14268"
     restart: always
-  # conta:
-  #   image: micro-quarkus/contacorrente:1.0
-  #   build:
-  #     context: contacorrente
-  #     dockerfile: src/main/docker/Dockerfile.jvm
-  #   environment:
-  #     RABBITMQ_HOST: rabbit
-  #     RABBITMQ_PORT: 5672
-  #     QUARKUS_OIDC_AUTH_SERVER_URL: http://localhost:8080/auth/realms/Quarkus
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     - "rabbit"
-  #   networks:
-  #     - rabbitmq-quickstart-network
-  # investimento:
-  #   image: micro-quarkus/investimentos:1.0
-  #   build:
-  #     context: investimentos
-  #     dockerfile: src/main/docker/Dockerfile.jvm
-  #   environment:
-  #     RABBITMQ_HOST: rabbit
-  #     RABBITMQ_PORT: 5672
-  #     QUARKUS_OIDC_AUTH_SERVER_URL: http://localhost:8080/auth/realms/Quarkus
-  #   ports:
-  #     - "8181:8181"
-  #   depends_on:
-  #     - "rhsso"
-  #   networks:
-  #     - rabbitmq-quickstart-network
-  # cartaocredito:
-  #   image: micro-quarkus/cartaocredito:1.0
-  #   build:
-  #     context: cartaocredito
-  #     dockerfile: src/main/docker/Dockerfile.jvm
-  #   environment:
-  #     RABBITMQ_HOST: rabbit
-  #     RABBITMQ_PORT: 5672
-  #     QUARKUS_OIDC_AUTH_SERVER_URL: http://localhost:10080/auth/realms/Quarkus
-  #   ports:
-  #     - "8180:8180"
-  #   depends_on:
-  #     - "rhsso"
-  #   networks:
-  #     - rabbitmq-quickstart-network
-  # networks:
-  #   rabbitmq-quickstart-network:
-  #     name: rabbitmq-quickstart
-
-  # conta:
-  #   build: 
-  #     context: contacorrente
-  #     dockerfile: src/main/docker/Dockerfile.native
-  #   image: micro-quarkus/contacorrente:native
-  #   container_name: conta_container
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     RABBITMQ_HOST: rabbit
-  #     RABBITMQ_PORT: 5672
-  #   networks:
-  #     - rabbitmq-quickstart-network
+#     networks:
+#       - micro-network
+#   conta:
+#     image: micro-quarkus/contacorrente:1.0
+#     build:
+#       context: contacorrente
+#       dockerfile: src/main/docker/Dockerfile.jvm
+#     environment:
+#       QUARKUS_HTTP_PORT: 8082
+#       RABBITMQ_HOST: rabbit
+#       RABBITMQ_PORT: 5672
+#       QUARKUS_OIDC_AUTH_SERVER_URL: http://rhsso:8080/auth/realms/Quarkus
+#       QUARKUS_OIDC_CREDENTIALS_SECRET: 5ffb3490-4d7b-42ed-8cac-e6774550bc92
+#       QUARKUS_OIDC_CLIENT_ID: customer-app
+#       QUARKUS_HTTP_AUTH_POLICY_ROLE_POLICY1.ROLES_ALLOWED: user,admin                      
+#       QUARKUS_HTTP_AUTH_PERMISSION_ROLES1_PATHS: /*
+#       QUARKUS_HTTP_AUTH_PERMISSION_ROLES1_POLICY: role-policy1
+#     ports:
+#       - "8082:8082"
+#     restart: always  
+#     depends_on:
+#       - "rhsso"
+#       - "rabbit"
+#     networks:
+#       - micro-network
+#   investimento:
+#     image: micro-quarkus/investimentos:1.0
+#     build:
+#       context: investimentos
+#       dockerfile: src/main/docker/Dockerfile.jvm
+#     environment:
+#       QUARKUS_HTTP_PORT: 8181
+#       RABBITMQ_HOST: rabbit
+#       RABBITMQ_PORT: 5672
+#       QUARKUS_OIDC_AUTH_SERVER_URL: http://rhsso:8080/auth/realms/Quarkus
+#       QUARKUS_OIDC_CREDENTIALS_SECRET: 5ffb3490-4d7b-42ed-8cac-e6774550bc92
+#       QUARKUS_OIDC_CLIENT_ID: customer-app
+#       QUARKUS_HTTP_AUTH_POLICY_ROLE_POLICY1.ROLES_ALLOWED: user,admin                      
+#       QUARKUS_HTTP_AUTH_PERMISSION_ROLES1_PATHS: /*
+#       QUARKUS_HTTP_AUTH_PERMISSION_ROLES1_POLICY: role-policy1
+#     ports:
+#       - "8181:8181"
+#     restart: always  
+#     depends_on:
+#       - "rhsso"
+#       - "rabbit"
+#     networks:
+#       - micro-network
+#   cartaocredito:
+#     image: micro-quarkus/cartaocredito:1.0
+#     build:
+#       context: cartaocredito
+#       dockerfile: src/main/docker/Dockerfile.jvm
+#     environment:
+#       QUARKUS_HTTP_PORT: 8180
+#       RABBITMQ_HOST: rabbit
+#       RABBITMQ_PORT: 5672
+#       QUARKUS_OIDC_AUTH_SERVER_URL: http://rhsso:8080/auth/realms/Quarkus
+#       QUARKUS_OIDC_CREDENTIALS_SECRET: 5ffb3490-4d7b-42ed-8cac-e6774550bc92
+#       QUARKUS_OIDC_CLIENT_ID: customer-app
+#       QUARKUS_HTTP_AUTH_POLICY_ROLE_POLICY1.ROLES_ALLOWED: user,admin                      
+#       QUARKUS_HTTP_AUTH_PERMISSION_ROLES1_PATHS: /*
+#       QUARKUS_HTTP_AUTH_PERMISSION_ROLES1_POLICY: role-policy1
+#     ports:
+#       - "8180:8180"
+#     restart: always
+#     depends_on:
+#       - "rhsso"
+#       - "rabbit"
+#     networks:
+#       - micro-network
+# networks:
+#   micro-network:
+#     name: micro-quarkus
+#     driver: bridge
+#     ipam:
+#       driver: default
